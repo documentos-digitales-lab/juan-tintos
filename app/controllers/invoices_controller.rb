@@ -1,12 +1,15 @@
 class InvoicesController < ApplicationController
   def new
+    @customer = Customer.find(params[:customer_id])
+    @invoice = Invoice.new
+    2.times { @invoice.invoice_items.build }
   end
 
   def create
     customer = Customer.find(params[:customer_id])
     invoice = customer.invoices.create!(invoice_params)
 
-    redirect_to new_invoice_path, notice: "Invoice created successfully."
+    redirect_to new_invoice_path(customer_id: customer.id), notice: "Invoice created successfully."
   end
 
   private
