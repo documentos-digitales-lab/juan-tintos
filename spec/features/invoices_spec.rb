@@ -31,4 +31,22 @@ RSpec.feature "Invoice creation" do
     expect(invoice.tax).to eq(56.00)
     expect(invoice.total).to eq(406.00)
   end
+
+  scenario "shows the customer's personalized greeting" do
+    customer = Customer.create!(rfc: "AAA")
+
+    allow(CustomerApi).to receive(:find)
+      .with(customer.id)
+      .and_return(
+        {
+          "firstName" => "James",
+          "lastName" => "Davis"
+        }
+      )
+
+    visit new_invoice_path(customer_id: customer.id)
+
+    expect(page).to have_content("Hello James Davis!")
+    expect(page).to have_content("Please add your products and click on Create:")
+  end
 end

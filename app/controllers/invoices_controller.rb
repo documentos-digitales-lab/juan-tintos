@@ -1,7 +1,8 @@
 class InvoicesController < ApplicationController
   def new
     @customer = Customer.find(params[:customer_id])
-    @invoice = Invoice.new
+    @customer_data = CustomerApi.find(@customer.id)
+    @invoice = @customer.invoices.build
     2.times { @invoice.invoice_items.build }
   end
 
