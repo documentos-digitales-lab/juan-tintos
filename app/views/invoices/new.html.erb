@@ -6,12 +6,12 @@
   <%= hidden_field_tag :customer_id, @customer.id %>
 
   <%= f.fields_for :invoice_items do |item_fields| %>
-    <div>
+    <div class="invoice-item" id="invoice-item-<%= item_fields.index + 1 %>">
       <h2>Product <%= item_fields.index + 1 %></h2>
 
       <div>
         <%= item_fields.label :quantity, "Quantity" %>
-        <%= item_fields.number_field :quantity, min: 1 %>
+        <%= item_fields.number_field :quantity, min: 1, class: "quantity" %>
       </div>
 
       <div>
@@ -21,10 +21,75 @@
 
       <div>
         <%= item_fields.label :unit_price, "Unit Price" %>
-        <%= item_fields.number_field :unit_price, step: 0.01, min: 0 %>
+        <%= item_fields.number_field :unit_price, step: 0.01, min: 0, class: "unit-price" %>
+      </div>
+
+      <div>
+        <strong>Amount:</strong>
+        $<span class="amount">0.00</span>
       </div>
     </div>
   <% end %>
 
+  <hr>
+
+  <div>
+    <strong>Subtotal:</strong>
+    $<span id="subtotal">0.00</span>
+  </div>
+
+  <div>
+    <strong>Tax (16%):</strong>
+    $<span id="tax">0.00</span>
+  </div>
+
+  <div>
+    <strong>Total:</strong>
+    $<span id="total">0.00</span>
+  </div>
+
+  <div id="additional-tax-message"></div>
+
   <%= f.submit "Create" %>
 <% end %>
+
+<script>
+  function calculateInvoice() {
+    let subtotal = 0;
+    let additionalTaxNeeded = false;
+
+    document.querySelectorAll(".invoice-item").forEach(function(item) {
+      const quantity = parseFloat(item.querySelector(".quantity").value) || 0;
+      const unitPrice = parseFloat(item.querySelector(".unit-price").value) || 0;
+
+      const amount = quantity * unitPrice;
+      const tax = amount * 0.16;
+
+      item.querySelector(".amount").textContent = amount.toFixed(2);
+
+      subtotal += amount;
+
+      if (tax > 2000) {
+        additionalTaxNeeded = true;
+      }
+    });
+
+    const tax = subtotal * 0.16;
+    const total = subtotal + tax;
+
+    document.querySelector("#subtotal").textContent = subtotal.toFixed(2);
+    document.querySelector("#tax").textContent = tax.toFixed(2);
+    document.querySelector("#total").textContent = total.toFixed(2);
+
+    document.querySelector("#additional-tax-message").textContent =
+      additionalTaxNeeded
+        ? "additional tax should be added"
+        : "additional tax is not needed";
+  }
+
+  document.querySelectorAll(".quantity, .unit-price").forEach(function(input) {
+    input.addEventListener("input", calculateInvoice);
+  });
+
+  calculateInvoice();
+</script>

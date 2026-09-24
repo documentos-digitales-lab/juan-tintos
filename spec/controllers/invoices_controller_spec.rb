@@ -30,9 +30,12 @@ RSpec.describe InvoicesController, type: :controller do
       }.to change(Invoice, :count).by(1)
         .and change(InvoiceItem, :count).by(2)
 
-      expect(response).to redirect_to(new_invoice_path)
+      expect(response).to redirect_to(
+        new_invoice_path(customer_id: customer.id)
+      )
 
       invoice = Invoice.last
+
       expect(invoice.invoice_items.size).to eq(2)
       expect(invoice.subtotal).to eq(350.00)
       expect(invoice.tax).to eq(56.00)
