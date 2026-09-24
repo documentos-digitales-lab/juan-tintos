@@ -1,6 +1,32 @@
 require 'rails_helper'
 
 RSpec.describe Invoice, type: :model do
+  describe 'validations' do
+    let(:customer) { Customer.create!(rfc: 'AAA') }
+
+    it 'is invalid with fewer than 2 items' do
+      invoice = customer.invoices.build
+      invoice.invoice_items.build(product: 'Widget', quantity: 1, unit_price: 10)
+
+      expect(invoice).not_to be_valid
+      expect(invoice.errors[:invoice_items]).to be_present
+    end
+
+    it 'is invalid with more than 2 items' do
+      invoice = customer.invoices.build
+      3.times { invoice.invoice_items.build(product: 'Widget', quantity: 1, unit_price: 10) }
+
+      expect(invoice).not_to be_valid
+    end
+
+    it 'is valid with exactly 2 items' do
+      invoice = customer.invoices.build
+      2.times { invoice.invoice_items.build(product: 'Widget', quantity: 1, unit_price: 10) }
+
+      expect(invoice).to be_valid
+    end
+  end
+
   describe '#subtotal' do
     it 'calculates the sum of the item amounts' do
       invoice = Invoice.new

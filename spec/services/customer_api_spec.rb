@@ -18,15 +18,42 @@ RSpec.describe CustomerApi do
       expect(result["lastName"]).to eq("Davis")
     end
 
-    it "raises an error when the API request fails" do
-      response = instance_double(Net::HTTPResponse)
+    it "raises when the API responds with an error status" do
+      response = instance_double(Net::HTTPResponse, code: "500")
 
       allow(response).to receive(:is_a?).with(Net::HTTPSuccess).and_return(false)
       allow(Net::HTTP).to receive(:get_response).and_return(response)
 
       expect {
         described_class.find(1)
-      }.to raise_error("Customer API request failed")
+      }.to raise_error(CustomerApi::Error, "Customer API responded with 500")
+    end
+
+    it "raises when the request times out" do
+      allow(Net::HTTP).to receive(:get_response).and_raise(Timeout::Error)
+
+      expect {
+        described_class.find(1)
+      }.to raise_error(CustomerApi::Error, "Customer API request timed out")
+    end
+
+    it "raises when the connection fails" do
+      allow(Net::HTTP).to receive(:get_response).and_raise(SocketError, "getaddrinfo failed")
+
+      expect {
+        described_class.find(1)
+      }.to raise_error(CustomerApi::Error, /Customer API connection failed/)
+    end
+
+    it "raises when the response body is not valid JSON" do
+      response = instance_double(Net::HTTPResponse, body: "not json")
+
+      allow(response).to receive(:is_a?).with(Net::HTTPSuccess).and_return(true)
+      allow(Net::HTTP).to receive(:get_response).and_return(response)
+
+      expect {
+        described_class.find(1)
+      }.to raise_error(CustomerApi::Error, /Customer API returned invalid JSON/)
     end
   end
 end

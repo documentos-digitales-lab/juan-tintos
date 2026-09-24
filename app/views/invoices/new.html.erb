@@ -1,7 +1,21 @@
 <h1>Create An Invoice</h1>
-<p>
-  Hello <%= @customer_data["firstName"] %> <%= @customer_data["lastName"] %>!
-</p>
+
+<% if @customer_data %>
+  <p>
+    Hello <%= @customer_data["firstName"] %> <%= @customer_data["lastName"] %>!
+  </p>
+<% end %>
+
+<% if @invoice.errors.any? %>
+  <div id="error_explanation">
+    <h2><%= pluralize(@invoice.errors.count, "error") %> prohibited this invoice from being saved:</h2>
+    <ul>
+      <% @invoice.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
 
 <p>Please add your products and click on Create:</p>
 
