@@ -10,11 +10,30 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_10_16_202411) do
+ActiveRecord::Schema[7.0].define(version: 2026_09_23_042236) do
   create_table "customers", charset: "utf8", force: :cascade do |t|
     t.string "rfc"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
+  create_table "invoice_items", charset: "utf8", force: :cascade do |t|
+    t.bigint "invoice_id", null: false
+    t.integer "quantity", null: false
+    t.string "product", null: false
+    t.decimal "unit_price", precision: 12, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["invoice_id"], name: "index_invoice_items_on_invoice_id"
+  end
+
+  create_table "invoices", charset: "utf8", force: :cascade do |t|
+    t.bigint "customer_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["customer_id"], name: "index_invoices_on_customer_id"
+  end
+
+  add_foreign_key "invoice_items", "invoices"
+  add_foreign_key "invoices", "customers"
 end

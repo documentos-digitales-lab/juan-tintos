@@ -1,7 +1,7 @@
 <p>Please complete all of the steps on this page:</p>
 <ul>
-  <li>Create An Invoice</li>
+  <%= link_to "Create An Invoice", new_invoice_path(customer_id: @customer.id) %>
 </ul>
-<%= form_for(:customer, url: customer_path, method: :put) do |f| %>
+<%= form_for(:customer, url: customer_path(@customer), method: :put) do |f| %>
   <%= f.submit "Complete Process" %>
 <% end %>
